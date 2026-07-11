@@ -1,0 +1,44 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - run: python -m pip install -e '.[dev]'
+      - run: ruff check .
+      - run: ruff format --check .
+      - run: mypy --strict src tests
+      - run: pytest --cov=boundary_audit --cov-branch
+      - run: python examples/basic_usage.py
+      - run: python examples/explicit_symbolization.py
+      - run: python examples/null_model_comparison.py
+      - run: python examples/spectral_analysis.py
+
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m pip install build
+      - run: python -m build
+      - name: Install wheel in a clean environment
+        run: |
+          python -m venv /tmp/boundary-audit-smoke
+          /tmp/boundary-audit-smoke/bin/pip install dist/*.whl
+          /tmp/boundary-audit-smoke/bin/python -c "import boundary_audit; assert boundary_audit.__version__ == '0.1.0'"
