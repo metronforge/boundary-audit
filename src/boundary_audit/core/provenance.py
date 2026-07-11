@@ -1,8 +1,8 @@
 """Deterministic experiment provenance."""
 
-import json
 from collections.abc import Mapping
 from dataclasses import asdict, dataclass
+from typing import cast
 
 from boundary_audit.core.boundaries import BoundaryConfiguration
 from boundary_audit.core.errors import MetricInputError
@@ -53,8 +53,7 @@ class ExperimentSpec:
 
     def canonical_bytes(self) -> bytes:
         """Return deterministic canonical JSON for experiment hashing."""
-        raw = asdict(self)
-        value: dict[str, JSONValue] = json.loads(json.dumps(raw, allow_nan=False))
+        value = cast(dict[str, JSONValue], asdict(self))
         return canonical_json_bytes(value)
 
     @property
