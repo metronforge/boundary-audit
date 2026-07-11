@@ -92,10 +92,14 @@ def canonical_json_bytes(value: Mapping[str, JSONValue]) -> bytes:
 
     materialized = dict(value)
     validate(materialized)
-    return json.dumps(
-        materialized,
-        sort_keys=True,
-        separators=(",", ":"),
-        ensure_ascii=False,
-        allow_nan=False,
-    ).encode("utf-8")
+    try:
+        encoded = json.dumps(
+            materialized,
+            sort_keys=True,
+            separators=(",", ":"),
+            ensure_ascii=False,
+            allow_nan=False,
+        )
+    except (TypeError, ValueError) as exc:
+        raise SerializationError("value is not canonical JSON serializable") from exc
+    return encoded.encode("utf-8")
