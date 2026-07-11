@@ -8,7 +8,7 @@ version = "0.1.0"
 description = "Mathematical and statistical analysis of boundary configurations in finite symbolic streams."
 readme = "README.md"
 requires-python = ">=3.11"
-dependencies = ["numpy>=1.26"]
+dependencies = ["numpy>=1.26,<2.4"]
 license = { file = "LICENSE" }
 authors = [{ name = "metronforge" }]
 classifiers = [
@@ -26,7 +26,8 @@ Changelog = "https://github.com/metronforge/boundary-audit/blob/main/CHANGELOG.m
 packages = ["src/boundary_audit"]
 
 [tool.semantic_release]
-build_command = "python -m build"
+allow_zero_version = true
+build_command = "python -m pip install build && python -m build"
 version_toml = ["pyproject.toml:project.version"]
 
 [tool.semantic_release.branches.main]
